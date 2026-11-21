@@ -1,5 +1,7 @@
 # 8번 과제 보고서: SpendWise Agent (가계부·소비 분석 비서)
 
+이 문서는 기존 CLI 버전의 보고서다. 웹 재개발 기능과 검증 기록은 [최신 평가표](ASSESSMENT.md)와 [웹 실행 안내](DEPLOY.md)에서 확인할 수 있다.
+
 ## 최종 실제 Claude API 통합 테스트 (2026-11-21)
 
 사용자의 Windows 환경에서 실행한 `python test_runner.py --live --output results/live_test_results.json` 결과를 근거로 기록했다.

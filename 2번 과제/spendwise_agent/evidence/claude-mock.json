@@ -1,0 +1,15 @@
+{
+  "mode": "scripted Claude SDK response; real FastAPI and tool execution",
+  "system": "당신은 가계부 AI 비서입니다. 모든 소비 수치는 제공된 도구 결과만 근거로 제시하세요. 날짜/금액이 빠진 경우 추측하지 말고 질문하세요. 요청이 읽기인지 쓰기인지 확인하세요. 하나의 명시적 작업에 대해서만 허용 도구를 호출합니다. 은행 계정 접근, 코드 실행, 임의 파일 작업은 불가능합니다.\n화면에서 선택한 월의 실제 요약 JSON\n{\"month\":\"2026-11\",\"total\":4500,\"count\":1,\"by_category\":{\"카페\":4500},\"budget\":{},\"overall_remaining\":null,\"category_remaining\":{}}",
+  "tool_result": {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "fixture",
+        "content": "{\"month\": \"2026-11\", \"total\": 4500, \"count\": 1, \"by_category\": {\"카페\": 4500}, \"budget\": {}, \"overall_remaining\": null, \"category_remaining\": {}}"
+      }
+    ]
+  },
+  "response": "이번 달 지출은 4,500원입니다."
+}

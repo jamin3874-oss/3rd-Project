@@ -1,0 +1,58 @@
+{
+  "/api/data?month=2026-11": [
+    {
+      "txn_date": "2026-11-21",
+      "merchant": "지하철",
+      "amount": 1500,
+      "id": "958f1459-80b8-4c57-b7aa-e462d46e8697",
+      "category": "교통"
+    },
+    {
+      "txn_date": "2026-11-21",
+      "merchant": "김밥식당",
+      "amount": 8500,
+      "id": "5738269b-a8b5-43dc-bbbc-840f4242b068",
+      "category": "식비"
+    },
+    {
+      "txn_date": "2026-11-21",
+      "merchant": "스타벅스",
+      "amount": 4500,
+      "id": "19295ad0-4bb6-4a40-ab51-3318ecd768f1",
+      "category": "카페"
+    }
+  ],
+  "/api/data/summary?month=2026-11": {
+    "month": "2026-11",
+    "total": 14500,
+    "count": 3,
+    "by_category": {
+      "카페": 4500,
+      "식비": 8500,
+      "교통": 1500
+    },
+    "budget": {
+      "전체": 200000
+    },
+    "overall_remaining": 185500,
+    "category_remaining": {}
+  },
+  "/api/conversations": [
+    {
+      "id": "fc2caf72-20fa-4b70-a772-46b5d7374229",
+      "created_at": "2026-11-21T10:40:17.314862Z",
+      "month": "2026-11",
+      "message": "예산 2026-11 전체 200000",
+      "reply": "2026-11 전체 예산을 200,000원으로 설정했습니다.",
+      "tool": "set_budget"
+    }
+  ],
+  "/api/chat": {
+    "id": "fc2caf72-20fa-4b70-a772-46b5d7374229",
+    "created_at": "2026-11-21T10:40:17.314862Z",
+    "month": "2026-11",
+    "message": "예산 2026-11 전체 200000",
+    "reply": "2026-11 전체 예산을 200,000원으로 설정했습니다.",
+    "tool": "set_budget"
+  }
+}

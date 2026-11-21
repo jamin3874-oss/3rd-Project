@@ -1,4 +1,74 @@
-# SpendWise Agent — 코디세이 Claude 백엔드 버전
+# SpendWise · 월간 가계부
+
+거래를 기록하고 월별 지출과 예산 잔액을 확인하는 한국어 가계부다. 웹에서는 React → FastAPI → Firestore 순서로 데이터를 처리한다. 브라우저에서 Claude 사용을 선택하면 백엔드가 월별 요약과 최근 대화 6건을 모델에 전달한다. 단일 채점용 장부이므로 가상의 거래로 시연한다.
+
+[설치·로컬 실행·배포](DEPLOY.md) · [18개 평가 항목과 증빙](ASSESSMENT.md) · [모바일 실행 화면](evidence/overview-mobile.png)
+
+## 모듈 경계
+
+| 파일 | 담당 |
+|---|---|
+| frontend/app.jsx, public/ | 거래 폼, 월 선택, 채팅, 새로고침, 반응형 레이아웃과 브라우저용 배포 파일 |
+| web_api.py | HTTP Basic 로그인, Pydantic 검증, 거래·대화·월간 집계 API, 월 요약을 포함하는 모델 요청 |
+| web_store.py | Firestore 클라이언트 재사용, 문서 조회, 거래·대화 배치 저장, 테스트용 메모리 저장소 |
+| agent.py | 명령 해석, Claude 호출, 허용 도구 검증 및 결과 전달 |
+| tools.py, storage.py | CLI의 SQLite 집계·예산·CSV·감사 로그. 상호 분류와 월 유효성 검사는 웹에서도 사용 |
+| main.py, backend.py | 기존 대화형 CLI와 로컬 HTTP 버전의 진입점 |
+
+## API 및 화면 흐름
+
+| 요청 | 입력 및 동작 |
+|---|---|
+| GET /health | 프로세스 가동 상태 |
+| GET /docs, /openapi.json | Swagger UI와 요청·응답 스키마 |
+| POST /api/data | txn_date, merchant, 양의 정수 amount를 검증하고 분류한 지출을 저장. 생성 결과 201 |
+| PUT /api/data/{id} | 거래 날짜, 상호, 금액을 함께 교체. 날짜를 다른 달로 옮기면 해당 월 집계로 이동 |
+| GET /api/data?month=2026-11 | 해당 월 거래를 날짜 내림차순으로 조회 |
+| GET /api/data/summary?month=2026-11 | 합계, 건수, 분류별 합계, 예산과 잔액 |
+| POST /api/chat | message, month, 선택적 request_id. 응답에는 대화 ID, 시각, 답변, 사용 도구 포함 |
+| GET /api/conversations?limit=50 | 최근 대화부터 반환. 1~100건 선택 가능 |
+
+화면 흐름은 **거래 등록·수정 또는 채팅 전송 → 서버 저장 성공 → 선택 월 목록·요약·대화 다시 조회 → 개요와 대화에 반영** 순서다. React의 공통 부모가 탭과 월을 관리한다. 월을 빠르게 바꿔도 이전 월 조회가 새 화면을 덮지 않는다. 브라우저를 새로 열면 서버에서 대화를 다시 불러온다.
+
+## Firestore 모델
+
+| 컬렉션 | 문서 키 및 주요 필드 | 설계 이유와 조회 패턴 |
+|---|---|---|
+| data (지출) | UUID, kind=expense, txn_date, month, merchant, amount, category | 개별 거래를 편집한다. month를 함께 저장해 날짜 전체 스캔 없이 해당 월만 조회한다. |
+| data (예산) | budget-{월}-{분류}, kind=budget, month, category, amount | 같은 월·분류는 같은 문서를 갱신한다. 월 조회 한 번으로 지출·예산을 읽고 잔액을 산출한다. |
+| conversations | 요청 UUID, created_at(UTC), month, message, reply, tool, audit, schema_version | 최근 시각 내림차순 조회. audit의 인자·도구 결과를 구조화해 저장해 도구별 필드를 보존한다. 단일 장부이며 여러 사용자로 확장할 때는 인증된 사용자 ID로 읽기·쓰기를 분리해야 한다. |
+
+웹 도구는 변경을 준비한 후 한 대화의 거래·예산과 대화 기록을 Firestore 배치로 함께 커밋한다. 요청 ID가 같으면 이전 응답을 반환한다. 같은 ID로 다른 메시지를 보내면 409를 반환한다. 기존 SQLite 데이터와 웹 저장소는 별도 장부다.
+
+## 요약과 Claude
+
+### 브라우저 접근 정책과 입력 검증
+
+React와 API를 같은 주소에서 제공하는 기본 설정에서는 별도 오리진을 허용하지 않는다. 다른 프론트엔드에서 API를 호출해야 하면 서버의 `SPENDWISE_ALLOWED_ORIGINS`에 실제 프론트엔드 주소를 쉼표로 구분해 설정한 뒤 서버를 재시작한다. 예를 들어 `https://ledger.example.org,http://localhost:5173`처럼 프로토콜과 포트까지 맞춰 지정한다. 경로와 와일드카드는 허용하지 않는다. 분리 배포 시 프론트엔드 요청 주소도 실제 API로 지정해야 한다. 허용 오리진에서도 장부 인증은 필요하다.
+
+| 입력 | 허용 범위 | 거부 예시 |
+|---|---|---|
+| 거래 | 실제 거래일, 공백을 제거한 상호 1~80자, 금액 1~1조 원의 정수 값 | 2월 30일, 공백 상호, 음수·소수 금액, 정의되지 않은 필드 |
+| 월·대화 | 유효한 YYYY-MM, 공백 제거 후 메시지 1~2,000자 | 2026-13, 빈 메시지. 잘못된 스키마는 HTTP 422이며 저장 전 종료 |
+| 도구 | 등록된 지출·예산·요약·상호 순위·월 비교만 실행 | 미등록 도구나 명시적 요청 없는 AI 쓰기 거부. CLI 전용 CSV 파일 호출은 웹에서 차단 |
+
+브라우저의 허용·거부 오리진과 잘못된 거래·대화가 장부에 남지 않는 동작은 `tests/test_web.py`에서 검증한다.
+
+### 요약 주입과 도구 호출
+
+`summary(store, month)`를 개요 API, 채팅의 summarize 도구, 시스템 프롬프트가 공유한다. 예를 들어 4,500원짜리 거래 한 건이 있는 월에 “이번 달 지출 요약”을 보내면 첫 시스템 메시지에 해당 월의 count=1, total=4500이 들어간다. 모델이 summarize를 요청하면 서버가 다시 계산해 tool_result를 전달한다. [모의 요청에서 관찰한 값](evidence/claude-mock.json)
+
+| 방식 | 장점 | 비용·한계 |
+|---|---|---|
+| 선택 월 요약을 시스템 메시지에 포함 | 사용자가 “이번 달”이라고만 해도 화면과 같은 월·금액을 참조 | 매 AI 요청마다 조회와 입력 토큰이 필요하다. 읽은 시점의 값이다. |
+| 필요한 도구를 호출해 계산 | 다른 월 조회, 비교, 예산 변경을 검증된 함수로 실행 | 도구 결과를 자연어로 설명하는 두 번째 모델 호출이 추가될 수 있다. |
+
+지출 월은 사용자가 입력한 거래일을 기준으로 한다. 대화 저장 시각은 UTC이며 지출 월 산출에는 쓰지 않는다. 결산일을 변경하려면 web_api.py의 expense_row에서 month 키를 만드는 규칙을 바꾸고 이미 저장한 거래의 month도 다시 계산한다. monthly와 summary의 집계, CLI tools.py의 summarize, top_merchants, 월 경계 테스트도 함께 조정한다. 월말·다음 달 첫날 두 거래가 서로 올바른 기간에 포함되는지 검증한다.
+
+---
+
+## 이전 CLI 버전 안내
+
 
 **Python 3.10+ / VS Code / SQLite / Anthropic Messages Tool Use**
 
