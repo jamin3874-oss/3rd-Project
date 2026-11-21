@@ -1,3 +1,0 @@
-# Offline CLI and local HTTP backend use standard library.
-# Claude Tool Use requires the Anthropic SDK.
-anthropic>=0.40,<1.0
