@@ -29,6 +29,34 @@ class WebTests(unittest.TestCase):
         self.assertEqual(self.client.get("/api/conversations", auth=None).status_code, 401)
         self.assertEqual(self.client.post("/api/data", json={**self.item,"amount":-1}).status_code, 422)
 
+    def test_remember_login(self):
+        from web_api import SESSION_COOKIE, SESSION_SECONDS
+
+        self.client.base_url = "https://testserver"
+        self.client.auth = None
+        self.assertIn("가계부 로그인", self.client.get("/").text)
+        self.assertEqual(self.client.post("/session", auth=("spendwise", "incorrect")).status_code, 401)
+        result = self.client.post("/session", auth=("spendwise", "fixture"))
+        self.assertEqual(result.status_code, 204)
+        for flag in ["Max-Age=2592000", "HttpOnly", "Secure", "SameSite=lax"]:
+            self.assertIn(flag, result.headers["set-cookie"])
+        token = self.client.cookies.get(SESSION_COOKIE)
+        self.assertIn('id="root"', self.client.get("/").text)
+        self.assertEqual(self.client.get("/api/conversations").status_code, 200)
+        expiry = int(token.split(".")[0])
+        with patch("web_api.time.time", return_value=expiry - 1):
+            self.assertEqual(self.client.get("/api/conversations").status_code, 200)
+        with patch("web_api.time.time", return_value=expiry + 1):
+            self.assertEqual(self.client.get("/api/conversations").status_code, 401)
+        with patch.dict(os.environ, SPENDWISE_PASSWORD="changed"):
+            self.assertEqual(self.client.get("/api/conversations").status_code, 401)
+        forged = str(expiry + SESSION_SECONDS) + "." + token.split(".", 1)[1]
+        self.assertEqual(self.client.get("/api/conversations", headers={
+            "Cookie": f"{SESSION_COOKIE}={forged}"}).status_code, 401)
+        self.client.post("/session/logout")
+        self.assertIsNone(self.client.cookies.get(SESSION_COOKIE))
+        self.assertEqual(self.client.get("/api/conversations").status_code, 401)
+
     def test_month_change_refresh(self):
         row = self.client.post("/api/data", json=self.item)
         self.assertEqual(row.status_code, 201)

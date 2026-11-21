@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SpendWise · 로그인</title><meta name="theme-color" content="#194b3f"><link rel="manifest" href="/assets/app.webmanifest"><link rel="apple-touch-icon" href="/assets/icon-180.png">
+<link rel="stylesheet" href="/assets/styles.css"></head>
+<body><main style="max-width:520px"><header><div class="brand"><i>₩</i> SpendWise</div></header>
+<h1>가계부 로그인</h1><section>
+<form id="login" method="post" action="/session">
+<label>가계부 비밀번호<input id="password" type="password" autocomplete="current-password" required></label>
+<small>이 기기에서 30일간 로그인을 유지합니다.</small>
+<button class="primary">로그인</button></form><p id="error" role="alert" hidden></p>
+</section></main><script src="/assets/login.js"></script></body></html>
