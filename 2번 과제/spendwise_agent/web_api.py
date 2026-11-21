@@ -1,6 +1,9 @@
+import hmac
 import json
 import os
+import re
 import secrets
+import time
 from collections import Counter
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -8,10 +11,10 @@ from typing import Annotated
 from urllib.parse import urlsplit
 from uuid import UUID, uuid4
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, StringConstraints
@@ -44,14 +47,41 @@ Month = Annotated[str, StringConstraints(pattern=r"^[0-9]{4}-(0[1-9]|1[0-2])$"),
 Label = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)]
 
 
-def authorize(credentials: Annotated[HTTPBasicCredentials | None, Depends(security)]):
+SESSION_COOKIE = "spendwise_session"
+SESSION_SECONDS = 30 * 24 * 60 * 60
+
+
+def server_password():
     password = os.getenv("SPENDWISE_PASSWORD")
     if not password:
         raise HTTPException(503, "서버의 가계부 비밀번호 설정이 필요합니다.")
-    if not credentials or credentials.username != "spendwise" or not secrets.compare_digest(
-        credentials.password.encode(), password.encode()
-    ):
-        raise HTTPException(401, "로그인이 필요합니다.", headers={"WWW-Authenticate": 'Basic realm="SpendWise"'})
+    return password
+
+
+def signature(payload, password):
+    return hmac.digest(password.encode(), ("SpendWise session v1:" + payload).encode(), "sha256").hex()
+
+
+def valid_session(request, password):
+    token = request.cookies.get(SESSION_COOKIE, "")
+    if not re.fullmatch(r"[0-9]{10,11}\.[0-9a-f]{32}\.[0-9a-f]{64}", token):
+        return False
+    payload, mac = token.rsplit(".", 1)
+    return (int(payload.split(".")[0]) > time.time()
+            and secrets.compare_digest(mac, signature(payload, password)))
+
+
+def authorize(request: Request, response: Response,
+              credentials: Annotated[HTTPBasicCredentials | None, Depends(security)]):
+    password = server_password()
+    response.headers["Cache-Control"] = "no-store"
+    if valid_session(request, password):
+        return
+    if credentials and credentials.username == "spendwise" and secrets.compare_digest(
+            credentials.password.encode(), password.encode()):
+        return
+    headers = {} if request.headers.get("X-SpendWise-Web") else {"WWW-Authenticate": 'Basic realm="SpendWise"'}
+    raise HTTPException(401, "로그인이 필요합니다.", headers=headers)
 
 
 protected = [Depends(authorize)]
@@ -252,9 +282,32 @@ def chat(request: Chat, store=Depends(get_store)):
     return turn
 
 
-@app.get("/", dependencies=protected, include_in_schema=False)
-def home():
-    return FileResponse(assets / "index.html")
+@app.get("/", include_in_schema=False)
+def home(request: Request):
+    page = "index.html" if valid_session(request, server_password()) else "login.html"
+    return FileResponse(assets / page, headers={"Cache-Control": "no-store"})
+
+
+@app.post("/session", include_in_schema=False)
+def login(request: Request, credentials: Annotated[HTTPBasicCredentials | None, Depends(security)]):
+    password = server_password()
+    if not credentials or credentials.username != "spendwise" or not secrets.compare_digest(
+            credentials.password.encode(), password.encode()):
+        raise HTTPException(401, "가계부 비밀번호를 확인하세요.")
+    payload = f"{int(time.time()) + SESSION_SECONDS}.{secrets.token_hex(16)}"
+    response = Response(status_code=204, headers={"Cache-Control": "no-store"})
+    response.set_cookie(SESSION_COOKIE, payload + "." + signature(payload, password),
+                        max_age=SESSION_SECONDS, secure=True, httponly=True, samesite="lax")
+    return response
+
+
+@app.post("/session/logout", include_in_schema=False)
+def logout(request: Request):
+    if request.headers.get("sec-fetch-site") == "cross-site":
+        raise HTTPException(403)
+    response = RedirectResponse("/", status_code=303, headers={"Cache-Control": "no-store"})
+    response.delete_cookie(SESSION_COOKIE, secure=True, httponly=True, samesite="lax")
+    return response
 
 
 app.mount("/assets", StaticFiles(directory=assets, check_dir=False), name="assets")

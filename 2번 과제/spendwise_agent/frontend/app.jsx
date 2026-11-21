@@ -6,7 +6,8 @@ const won = value => value.toLocaleString("ko-KR")+"원";
 
 async function api(path, method="GET", body){
   const response = await fetch("/api/"+path,{method, cache:"no-store",
-    headers:body ? {"Content-Type":"application/json"} : {}, body:JSON.stringify(body)});
+    headers:{"X-SpendWise-Web":"1", ...(body ? {"Content-Type":"application/json"} : {})}, body:JSON.stringify(body)});
+  if(response.status===401) location.replace("/");
   const data = await response.json();
   if(!response.ok) throw new Error(typeof data.detail==="string" ? data.detail : "입력값과 서버 연결을 확인하세요.");
   return data;
@@ -56,7 +57,8 @@ function App(){
   const summary=data?.summary;
   return <main><header><div className="brand"><i>₩</i> SpendWise</div><label>조회 월 <input type="month" value={month}
     onChange={event=>event.target.value && setMonth(event.target.value)}/></label></header>
-    <nav>{["개요","거래 내역","대화"].map(name=><button key={name} aria-current={tab===name?"page":undefined} onClick={()=>setTab(name)}>{name}</button>)}</nav>
+    <nav>{["개요","거래 내역","대화"].map(name=><button key={name} aria-current={tab===name?"page":undefined} onClick={()=>setTab(name)}>{name}</button>)}
+    <form method="post" action="/session/logout" style={{marginLeft:"auto"}}><button>로그아웃</button></form></nav>
     <h1>{tab==="개요"?"월간 가계부":tab}</h1>{error && <p role="alert">{error} <button onClick={()=>refresh(value=>value+1)}>새로고침</button></p>}
     {!data && !error && <p role="status">불러오는 중…</p>}
     {tab==="개요" && summary && <><section className="hero"><span>{month.replace("-",".")} · 총지출</span><h2>{won(summary.total)}</h2>
