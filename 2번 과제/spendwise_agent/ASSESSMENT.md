@@ -1,14 +1,14 @@
 # SpendWise 웹 재개발 평가 점검
 
-기준 소스는 `jamin3874-oss/3rd-Project`의 `47514ef954855767b310764da27bb54a33cfb322` 커밋이다. 아래 표에서 기존 판정은 사용자 제공 사진에 기록된 결과이며, 이번 열은 로컬 재검증 결과다.
+기준 소스는 `jamin3874-oss/3rd-Project`의 `47514ef954855767b310764da27bb54a33cfb322` 커밋이다. 기존 판정은 사용자 제공 사진에 기록된 결과이며, 이번 열은 로컬 및 Google Cloud Shell 검증 결과다.
 
 | 번호 | 기존 판정 · 기준 | 이번 변경과 증빙 |
 |---|---|---|
 | 1 | FAIL · 공개 URL | 같은 서비스에 React와 FastAPI를 배포하는 Dockerfile과 [절차](DEPLOY.md)를 작성했다. 공개 배포와 외부 접속 캡처 대기. |
 | 2 | FAIL · Swagger | 로컬 브라우저에서 [Swagger 화면](evidence/swagger.png)을 열었다. 실제 앱에서 생성한 [OpenAPI](evidence/openapi.json)에 요청·응답이 있다. |
-| 3 | FAIL · Firestore 연동 및 목록 갱신 | 서울 리전의 실제 Firestore에서 콘솔로 예시 지출 [4,500원 등록](evidence/firestore-before.jpg) → [5,200원 수정](evidence/firestore-after.jpg) → 새로고침 후 유지 확인. 웹 목록 갱신은 메모리 모드에서 검증했다. FastAPI를 통한 실서비스 왕복은 검증 대기. |
+| 3 | FAIL · Firestore 연동 및 목록 갱신 | 콘솔에서 [4,500원 등록](evidence/firestore-before.jpg) → [5,200원 수정](evidence/firestore-after.jpg). 이어 Cloud Shell에서 FastAPI를 통해 5,300원으로 수정하고 실제 Firestore 문서, GET 목록, 월 합계를 대조했다. [실측 결과](evidence/live-firestore-api.json) |
 | 4 | FAIL · 요약 API 및 시스템 프롬프트 | 월 요약 API와 프롬프트가 같은 함수를 사용한다. [API 사례](evidence/local-api.json)와 [Claude 모의 호출 기록](evidence/claude-mock.json)을 확인할 수 있다. 실제 모델 재호출 대기. |
-| 5 | FAIL · 대화 불러오기 | 예산 대화를 저장하고 브라우저를 새로고침한 뒤 [대화 탭](evidence/chat-mobile.png)에서 복원 확인. |
+| 5 | FAIL · 대화 불러오기 | 로컬 [대화 탭 복원](evidence/chat-mobile.png) 및 실제 Firestore에서 월 요약 대화 저장 후 GET 대화 목록과 저장 문서의 응답 일치 확인. |
 | 6 | FAIL · 모바일 | [390px 화면](evidence/overview-mobile.png)에서 가로 넘침 없이 한 열로 표시. [1080px 화면](evidence/overview-desktop.png)은 두 열. |
 | 7 | PASS · 역할 분리 | README에 파일별 책임과 데이터 경계를 추가했다. |
 | 8 | FAIL · 컬렉션 설계 | README에 data 및 conversations 문서 키, 저장 필드, 조회 순서, 비정규화 이유를 명시했다. |
@@ -25,8 +25,8 @@
 
 ## 실행 기록
 
-- Windows, Python 3.14. 기존 CLI·Claude 모의·시나리오 테스트 18개와 웹 API 테스트 4개 통과. 웹 API 테스트는 메모리 저장소와 프로세스 내부 HTTP 전송을 사용했다.
+- Windows, Python 3.14. 기존 CLI·Claude 모의·시나리오 테스트 18개와 웹 API 테스트 6개 통과. 웹 API 테스트는 메모리 저장소와 프로세스 내부 HTTP 전송을 사용했다.
 - Chrome에서 모바일 입력, 거래 수정, 합계, 예산, 대화 재조회, 모바일 너비, 데스크톱 레이아웃, Swagger 렌더링을 확인했다. 브라우저 요청을 로컬 프로세스 안에서 실제 FastAPI에 전달했다.
-- 기존 로컬 HTTP 서버 테스트 5개는 이 환경에서 루프백 TCP 연결이 차단되어 실행 오류가 발생했다. 새 웹 테스트의 통과 수에서 제외했다. Firestore 에뮬레이터 테스트는 준비되어 있으며 실행 환경이 필요하다.
+- Cloud Shell, Python 3.12.3. unittest 30건 중 29건 통과. 기존 TCP 서버 테스트 5개도 통과했다. 에뮬레이터가 필요한 1건은 일반 실행에서 건너뛰었다. 실제 Firestore 검증은 별도 프로그램으로 실행했다.
 - Firebase 프로젝트 `spendwise-f6d6d`의 Spark 요금제에서 Standard 기본 데이터베이스를 서울(asia-northeast3)에 프로덕션 모드로 생성했다. 검증 문서는 `data/0eea85e2-70ac-4917-a118-de950b170001`이다.
-- 기존 results/live_test_results.json은 이전 CLI 버전의 기록이다. FastAPI의 실제 Firestore 접근 및 대화 저장, Claude 실호출, 공개 배포 URL은 별도 검증이 필요하다.
+- 기존 results/live_test_results.json은 이전 CLI 버전의 기록이다. 이번 웹 버전의 Claude는 요청에 따라 모의 응답으로 검증했다.

@@ -40,6 +40,12 @@ python -m uvicorn web_api:app --host 0.0.0.0 --port 8080
 
 ### 공개 채점 주소 배포
 
+**Render Free**를 사용할 때는 Web Service에 이 저장소를 지정하고, 검토 중에는 브랜치 `spendwise-web-assessment`, Root Directory는 `2번 과제/spendwise_agent`, 런타임은 Docker, 인스턴스는 Free, 상태 점검 경로는 `/health`를 선택한다. Environment에 `GOOGLE_CLOUD_PROJECT=spendwise-f6d6d`, `SPENDWISE_PASSWORD`(별도의 채점용 비밀번호), `GOOGLE_APPLICATION_CREDENTIALS=/etc/secrets/firestore.json`을 설정한다. 과제 프로젝트에 Cloud Datastore User를 부여한 전용 서비스 계정의 JSON은 Render의 Secret File `firestore.json`에 저장한다. 이 파일을 저장소에 커밋하지 않는다. 생성된 HTTPS 주소로 첫 화면, /docs, 비밀번호 인증 후 거래·요약·대화 API를 확인한다.
+
+Render 무료 인스턴스는 유휴 후 재시작할 수 있다. 채점 직전에 첫 화면과 월별 조회를 열어 응답 시간을 확인한다. [무료 인스턴스 안내](https://render.com/docs/free)
+
+**Google Cloud Run**을 사용하는 경우의 절차는 다음과 같다.
+
 Google Cloud 프로젝트는 이 과제의 서버, 저장소, 사용료를 한곳에서 관리하는 작업 공간이다. 프로젝트 ID는 그 공간의 고유 이름이다. 과제에서 제공한 프로젝트가 있으면 먼저 사용한다. 아래 과정에는 서비스 사용 권한과 요금 발생 가능성이 있으므로 계정 소유자가 승인한 후 진행한다.
 
 1. 프로젝트에서 Firestore를 Native 모드로 만들고 기본 데이터베이스를 선택한다. Cloud Run, Cloud Build, Artifact Registry, Secret Manager API를 사용 설정한다. 소스 빌드 계정에는 Cloud Run Builder, 배포 담당자에게는 소스 배포 및 실행 서비스 계정 사용 권한이 필요하다.
