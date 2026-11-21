@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-11-21T10:46:33.999224+00:00",
+  "project": "spendwise-f6d6d",
+  "document": "0eea85e2-70ac-4917-a118-de950b170001",
+  "before_amount": 5200,
+  "after_amount": 5300,
+  "before_total": 5200,
+  "after_total": 5300,
+  "conversation": {
+    "id": "ea776e3c-5910-4b2a-91af-bc54a4c90001",
+    "created_at": "2026-11-21T10:46:33.805796Z",
+    "month": "2026-11",
+    "message": "요약 2026-11",
+    "reply": "2026-11 지출은 1건, 총 5,300원입니다.",
+    "tool": "summarize"
+  }
+}

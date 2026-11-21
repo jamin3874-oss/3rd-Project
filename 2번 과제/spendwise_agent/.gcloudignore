@@ -1,0 +1,10 @@
+*
+!Dockerfile
+!.dockerignore
+!requirements*.txt
+!agent.py
+!tools.py
+!web_store.py
+!web_api.py
+!public/
+!public/**
