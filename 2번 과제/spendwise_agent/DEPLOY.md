@@ -40,7 +40,15 @@ python -m uvicorn web_api:app --host 0.0.0.0 --port 8080
 
 ### 공개 채점 주소 배포
 
-**Render Free**를 사용할 때는 Web Service에 이 저장소를 지정하고, 검토 중에는 브랜치 `spendwise-web-assessment`, Root Directory는 `2번 과제/spendwise_agent`, 런타임은 Docker, 인스턴스는 Free, 상태 점검 경로는 `/health`를 선택한다. Environment에 `GOOGLE_CLOUD_PROJECT=spendwise-f6d6d`, `SPENDWISE_PASSWORD`(별도의 채점용 비밀번호), `GOOGLE_APPLICATION_CREDENTIALS=/etc/secrets/firestore.json`을 설정한다. 과제 프로젝트에 Cloud Datastore User를 부여한 전용 서비스 계정의 JSON은 Render의 Secret File `firestore.json`에 저장한다. 이 파일을 저장소에 커밋하지 않는다. 생성된 HTTPS 주소로 첫 화면, /docs, 비밀번호 인증 후 거래·요약·대화 API를 확인한다.
+실제 [Render 서비스](https://spendwise-f6d6d.onrender.com/)는 Free 인스턴스에 배포했다. Web Service에 공개 Git 저장소와 브랜치 `spendwise-web-assessment`를 지정한다. Render의 Root Directory 입력란은 한글을 거부하므로 비워 두고 Python 3 런타임에서 다음 명령을 사용한다.
+
+| 설정 | 실제 사용값 |
+|---|---|
+| Build Command | `python -m pip install -r '2번 과제/spendwise_agent/requirements-web.txt'` |
+| Start Command | `cd '2번 과제/spendwise_agent' && exec python -m uvicorn web_api:app --host 0.0.0.0 --port $PORT` |
+| Health Check Path | `/health` |
+
+Environment에 `GOOGLE_CLOUD_PROJECT=spendwise-f6d6d`, `SPENDWISE_PASSWORD`(별도의 채점용 비밀번호), `GOOGLE_APPLICATION_CREDENTIALS=/etc/secrets/firestore.json`을 설정한다. 과제 프로젝트에서 Cloud Datastore User 권한을 받은 전용 서비스 계정의 JSON은 Render의 Secret File `firestore.json`에 저장한다. 키 교체는 새 키를 비밀 파일에 적용하고 배포 후 월 조회를 확인한 다음 Google IAM에서 이전 키를 폐기하는 순서다.
 
 Render 무료 인스턴스는 유휴 후 재시작할 수 있다. 채점 직전에 첫 화면과 월별 조회를 열어 응답 시간을 확인한다. [무료 인스턴스 안내](https://render.com/docs/free)
 

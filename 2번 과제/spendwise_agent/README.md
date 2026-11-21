@@ -4,6 +4,12 @@
 
 [설치·로컬 실행·배포](DEPLOY.md) · [18개 평가 항목과 증빙](ASSESSMENT.md) · [모바일 실행 화면](evidence/overview-mobile.png)
 
+## 채점용 공개 서비스
+
+[SpendWise 가계부](https://spendwise-f6d6d.onrender.com/) · [Swagger UI](https://spendwise-f6d6d.onrender.com/docs) · [OpenAPI JSON](https://spendwise-f6d6d.onrender.com/openapi.json) · [서버 상태](https://spendwise-f6d6d.onrender.com/health)
+
+로그인 사용자명은 `spendwise`다. 운영자는 Render 대시보드의 해당 서비스 → Environment → `SPENDWISE_PASSWORD`에서 비밀번호를 확인해 채점자에게 비공개로 전달한다. 2026년 11월 장부에서 **과제 예시 카페 5,300원**과 **월 요약 대화**를 확인할 수 있다. Swagger는 로그인 없이 열리며 보호된 API를 호출할 때는 Authorize에서 같은 장부 계정을 사용한다.
+
 ## 모듈 경계
 
 | 파일 | 담당 |
@@ -40,9 +46,7 @@
 
 웹 도구는 변경을 준비한 후 한 대화의 거래·예산과 대화 기록을 Firestore 배치로 함께 커밋한다. 요청 ID가 같으면 이전 응답을 반환한다. 같은 ID로 다른 메시지를 보내면 409를 반환한다. 기존 SQLite 데이터와 웹 저장소는 별도 장부다.
 
-## 요약과 Claude
-
-### 브라우저 접근 정책과 입력 검증
+## 브라우저 접근 정책과 입력 검증
 
 React와 API를 같은 주소에서 제공하는 기본 설정에서는 별도 오리진을 허용하지 않는다. 다른 프론트엔드에서 API를 호출해야 하면 서버의 `SPENDWISE_ALLOWED_ORIGINS`에 실제 프론트엔드 주소를 쉼표로 구분해 설정한 뒤 서버를 재시작한다. 예를 들어 `https://ledger.example.org,http://localhost:5173`처럼 프로토콜과 포트까지 맞춰 지정한다. 경로와 와일드카드는 허용하지 않는다. 분리 배포 시 프론트엔드 요청 주소도 실제 API로 지정해야 한다. 허용 오리진에서도 장부 인증은 필요하다.
 
@@ -54,7 +58,7 @@ React와 API를 같은 주소에서 제공하는 기본 설정에서는 별도 �
 
 브라우저의 허용·거부 오리진과 잘못된 거래·대화가 장부에 남지 않는 동작은 `tests/test_web.py`에서 검증한다.
 
-### 요약 주입과 도구 호출
+## 요약 주입과 도구 호출
 
 `summary(store, month)`를 개요 API, 채팅의 summarize 도구, 시스템 프롬프트가 공유한다. 예를 들어 4,500원짜리 거래 한 건이 있는 월에 “이번 달 지출 요약”을 보내면 첫 시스템 메시지에 해당 월의 count=1, total=4500이 들어간다. 모델이 summarize를 요청하면 서버가 다시 계산해 tool_result를 전달한다. [모의 요청에서 관찰한 값](evidence/claude-mock.json)
 

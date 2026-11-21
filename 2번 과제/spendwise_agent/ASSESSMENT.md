@@ -4,11 +4,11 @@
 
 | 번호 | 기존 판정 · 기준 | 이번 변경과 증빙 |
 |---|---|---|
-| 1 | FAIL · 공개 URL | 같은 서비스에 React와 FastAPI를 배포하는 Dockerfile과 [절차](DEPLOY.md)를 작성했다. 공개 배포와 외부 접속 캡처 대기. |
+| 1 | FAIL · 공개 URL | 무료 Render에 [React 앱](https://spendwise-f6d6d.onrender.com/)과 [FastAPI 문서](https://spendwise-f6d6d.onrender.com/docs)를 배포했다. [배포 화면](evidence/render-overview.jpg)과 [Swagger](evidence/render-swagger.jpg)를 캡처했다. |
 | 2 | FAIL · Swagger | 로컬 브라우저에서 [Swagger 화면](evidence/swagger.png)을 열었다. 실제 앱에서 생성한 [OpenAPI](evidence/openapi.json)에 요청·응답이 있다. |
-| 3 | FAIL · Firestore 연동 및 목록 갱신 | 콘솔에서 [4,500원 등록](evidence/firestore-before.jpg) → [5,200원 수정](evidence/firestore-after.jpg). 이어 Cloud Shell에서 FastAPI를 통해 5,300원으로 수정하고 실제 Firestore 문서, GET 목록, 월 합계를 대조했다. [실측 결과](evidence/live-firestore-api.json) |
+| 3 | FAIL · Firestore 연동 및 목록 갱신 | 콘솔에서 [4,500원 등록](evidence/firestore-before.jpg) → [5,200원 수정](evidence/firestore-after.jpg). FastAPI로 5,300원 수정 후 목록·월 합계를 대조했다. 공개 웹 화면에서도 5,200원, 5,300원 순서로 저장하고 매번 Firestore 문서 금액과 일치함을 확인했다. [API 실측](evidence/live-firestore-api.json) · [배포 화면](evidence/render-overview.jpg) |
 | 4 | FAIL · 요약 API 및 시스템 프롬프트 | 월 요약 API와 프롬프트가 같은 함수를 사용한다. [API 사례](evidence/local-api.json)와 [Claude 모의 호출 기록](evidence/claude-mock.json)을 확인할 수 있다. 실제 모델 재호출 대기. |
-| 5 | FAIL · 대화 불러오기 | 로컬 [대화 탭 복원](evidence/chat-mobile.png) 및 실제 Firestore에서 월 요약 대화 저장 후 GET 대화 목록과 저장 문서의 응답 일치 확인. |
+| 5 | FAIL · 대화 불러오기 | 실제 Firestore에 저장한 월 요약 응답을 대화 API로 조회하고, 공개 사이트 새로고침 후 [대화 탭](evidence/render-chat.jpg)에서 5,300원 응답을 확인했다. |
 | 6 | FAIL · 모바일 | [390px 화면](evidence/overview-mobile.png)에서 가로 넘침 없이 한 열로 표시. [1080px 화면](evidence/overview-desktop.png)은 두 열. |
 | 7 | PASS · 역할 분리 | README에 파일별 책임과 데이터 경계를 추가했다. |
 | 8 | FAIL · 컬렉션 설계 | README에 data 및 conversations 문서 키, 저장 필드, 조회 순서, 비정규화 이유를 명시했다. |
