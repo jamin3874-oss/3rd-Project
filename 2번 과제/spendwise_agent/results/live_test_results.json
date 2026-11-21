@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "run_at_utc": "2026-11-21T08:21:51.671351+00:00",
+  "mode": "live",
+  "source": "script-generated, synthetic transactions",
+  "live_api_called": true,
+  "is_live_evidence": true,
+  "database": "isolated temporary SQLite (removed after execution)",
+  "test_cases": [
+    {
+      "test_id": "TC-001",
+      "label": "거래 등록",
+      "input": "AI: 2026-11-21 스타벅스에서 4500원 쓴 내역을 등록해줘",
+      "expected_tool": "add_expense",
+      "actual_tool": "add_expense",
+      "validation": {
+        "tool_match": true,
+        "persisted_amount": true
+      },
+      "status": "PASS",
+      "result": {
+        "status": "added",
+        "date": "2026-11-21",
+        "merchant": "스타벅스",
+        "amount": 4500,
+        "category": "카페"
+      }
+    },
+    {
+      "test_id": "TC-002",
+      "label": "등록 거래 재조회",
+      "input": "AI: 2026-11월 소비 요약해줘",
+      "expected_tool": "summarize",
+      "actual_tool": "summarize",
+      "validation": {
+        "tool_match": true,
+        "summary_matches_db": true
+      },
+      "status": "PASS",
+      "result": {
+        "total": 4500,
+        "count": 1,
+        "budget": {},
+        "category_remaining": {}
+      }
+    },
+    {
+      "test_id": "TC-003",
+      "label": "카페 예산 설정",
+      "input": "AI: 2026-11월 카페 예산을 50000원으로 설정해줘",
+      "expected_tool": "set_budget",
+      "actual_tool": "set_budget",
+      "validation": {
+        "tool_match": true,
+        "budget_persisted": true
+      },
+      "status": "PASS",
+      "result": {
+        "category": "카페",
+        "budget": 50000
+      }
+    },
+    {
+      "test_id": "TC-004",
+      "label": "예산 잔액 검증",
+      "input": "AI: 2026-11월 카페 예산에서 얼마를 썼고 얼마나 남았는지 요약해줘",
+      "expected_tool": "summarize",
+      "actual_tool": "summarize",
+      "validation": {
+        "tool_match": true,
+        "budget_remaining": true
+      },
+      "status": "PASS",
+      "result": {
+        "total": 4500,
+        "count": 1,
+        "budget": {
+          "카페": 50000
+        },
+        "category_remaining": {
+          "카페": 45500
+        }
+      }
+    },
+    {
+      "test_id": "TC-005",
+      "label": "잘못된 날짜 거부",
+      "input": "AI: 2026-02-30에 스타벅스에서 1200원 쓴 내역을 등록해줘",
+      "expected_tool": null,
+      "actual_tool": null,
+      "validation": {
+        "write_rejected": true,
+        "database_unchanged": true,
+        "not_accidentally_accepted": true
+      },
+      "status": "PASS"
+    },
+    {
+      "test_id": "TC-006",
+      "label": "잘못된 금액 거부",
+      "input": "AI: 2026-11-21 스타벅스에서 -100원 쓴 내역을 등록해줘",
+      "expected_tool": null,
+      "actual_tool": null,
+      "validation": {
+        "write_rejected": true,
+        "database_unchanged": true,
+        "not_accidentally_accepted": true
+      },
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "PASS": 6,
+    "FAIL": 0,
+    "SKIP": 0
+  }
+}
