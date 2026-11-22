@@ -1,5 +1,7 @@
 # SpendWise · 월간 가계부
 
+**재평가 자료** · [#1·3 실서비스 접속·저장 증거와 #8·11·12·13 설계 근거](REVIEW.md)
+
 거래를 기록하고 월별 지출과 예산 잔액을 확인하는 한국어 가계부다. 웹에서는 React → FastAPI → Firestore 순서로 데이터를 처리한다. 브라우저에서 Claude 사용을 선택하면 백엔드가 월별 요약과 최근 대화 6건을 모델에 전달한다. 단일 채점용 장부이므로 가상의 거래로 시연한다.
 
 [설치·로컬 실행·배포](DEPLOY.md) · [18개 평가 항목과 증빙](ASSESSMENT.md) · [모바일 실행 화면](evidence/overview-mobile.png)
@@ -10,7 +12,7 @@
 
 [SpendWise 가계부](https://spendwise-f6d6d.onrender.com/) · [Swagger UI](https://spendwise-f6d6d.onrender.com/docs) · [OpenAPI JSON](https://spendwise-f6d6d.onrender.com/openapi.json) · [서버 상태](https://spendwise-f6d6d.onrender.com/health)
 
-로그인 사용자명은 `spendwise`다. 운영자는 Render 대시보드의 해당 서비스 → Environment → `SPENDWISE_PASSWORD`에서 비밀번호를 확인해 채점자에게 비공개로 전달한다. 2026년 11월 장부에서 **과제 예시 카페 5,300원**과 **월 요약 대화**를 확인할 수 있다. Swagger는 로그인 없이 열리며 보호된 API를 호출할 때는 Authorize에서 같은 장부 계정을 사용한다.
+2026년 11월 장부에서 **과제 예시 카페 5,300원**과 **월 요약 대화**를 확인할 수 있다. 운영자는 Render 서비스의 Environment에서 `SPENDWISE_PASSWORD`를 확인해 채점자에게 비공개로 전달한다. Swagger 문서는 공개되어 있으며, 보호된 API를 호출할 때는 Authorize에 사용자명 `spendwise`와 가계부 비밀번호를 입력한다.
 
 웹 화면에서는 가계부 비밀번호만 입력한다. HTTPS 전용 쿠키가 기기별로 최초 로그인부터 30일간 유지되며, 로그아웃하거나 사이트 데이터를 지우면 다시 로그인해야 한다. 서버 비밀번호를 변경하면 이전 쿠키도 만료된다.
 
@@ -21,7 +23,7 @@
 | 파일 | 담당 |
 |---|---|
 | frontend/app.jsx, public/ | 거래 폼, 월 선택, 채팅, 새로고침, 반응형 레이아웃과 브라우저용 배포 파일 |
-| web_api.py | HTTP Basic 로그인, Pydantic 검증, 거래·대화·월간 집계 API, 월 요약을 포함하는 모델 요청 |
+| web_api.py | 웹 로그인·로그아웃 및 30일 쿠키, API용 HTTP Basic 인증, Pydantic 검증, 거래·대화·월간 집계 API와 모델 요청 |
 | web_store.py | Firestore 클라이언트 재사용, 문서 조회, 거래·대화 배치 저장, 테스트용 메모리 저장소 |
 | agent.py | 명령 해석, Claude 호출, 허용 도구 검증 및 결과 전달 |
 | tools.py, storage.py | CLI의 SQLite 집계·예산·CSV·감사 로그. 상호 분류와 월 유효성 검사는 웹에서도 사용 |

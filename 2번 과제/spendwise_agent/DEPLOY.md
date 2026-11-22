@@ -13,7 +13,7 @@ $env:SPENDWISE_PASSWORD=Read-Host "연습용 가계부 비밀번호"
 python -m uvicorn web_api:app --host 127.0.0.1 --port 8000
 ```
 
-브라우저에서 `http://127.0.0.1:8000`을 열고 사용자명 `spendwise`와 방금 정한 비밀번호로 들어간다. `/docs`의 Authorize에도 같은 값을 사용한다. 이 연습용 장부는 프로그램 종료 시 비워진다. React와 Swagger 배포 파일은 프로젝트에 포함되어 있다. JSX 수정 후 `npx esbuild frontend/app.jsx --target=es2020 --outfile=public/app.js`로 다시 만든다.
+브라우저에서 `http://localhost:8000`을 열고 방금 정한 가계부 비밀번호를 입력한다. 웹 화면은 기기별로 30일간 로그인을 유지한다. Swagger에서 보호된 API를 직접 호출하려면 `/docs`의 Authorize에 사용자명 `spendwise`와 같은 비밀번호를 입력한다. 이 연습용 장부는 프로그램 종료 시 비워진다. React와 Swagger 배포 파일은 프로젝트에 포함되어 있다. JSX 수정 후 `npx esbuild frontend/app.jsx --target=es2020 --outfile=public/app.js`로 다시 만든다.
 
 ## 실제 배포에 필요한 선택
 
