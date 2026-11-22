@@ -14,6 +14,8 @@ React 화면과 FastAPI를 하나의 Render 서비스에서 제공한다. 채점
 
 ## #3 실제 Firestore 쓰기와 재조회
 
+11월 22일 15시 40분(한국 시각), 검증용 거래의 금액 필드에 현재 값 5,300원을 다시 쓰고 즉시 읽었다. Firestore가 PATCH와 GET 모두 HTTP 200과 같은 금액을 반환했다. 쓰기 요청에 직전 수정 시각을 조건으로 넣어 동시에 변경된 값을 덮어쓰지 않도록 했다. 아래 표와 콘솔 캡처는 금액 자체가 바뀐 앞선 실행 기록이다. [PATCH 본문·응답과 GET 원본](evidence/firestore-write-read.json) · [실행 캡처](evidence/submission-verification.jpg)
+
 프로젝트 `spendwise-f6d6d`의 예시 거래 한 건을 따라갔다. Firestore 콘솔에서 같은 문서 ID의 금액을 비교하면 최초 등록과 수정 결과를 확인할 수 있다.
 
 | 관찰 시점 | 대상 | 실제 확인값 |

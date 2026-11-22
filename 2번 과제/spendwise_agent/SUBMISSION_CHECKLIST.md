@@ -2,6 +2,8 @@
 
 이하 목록은 기존 CLI 버전용이다. 이번 웹 제출은 [평가 항목별 상태](ASSESSMENT.md)를 기준으로 점검한다.
 
+재제출 시 [실서비스 증거와 여섯 항목 설계 보고서](REVIEW.md), [공개 웹 앱](https://spendwise-f6d6d.onrender.com/), [API 문서](https://spendwise-f6d6d.onrender.com/docs)를 함께 확인한다. 가계부 비밀번호는 채점자 전용 제출란에서 별도로 전달한다.
+
 ## 프로젝트와 보고서
 
 - [x] **`README.md`**: 프로젝트 소개, 설치, 환경변수, 실행·테스트 방법
