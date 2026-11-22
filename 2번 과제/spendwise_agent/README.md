@@ -1,10 +1,14 @@
 # SpendWise · 월간 가계부
 
+**재평가 자료** · [#1·3 실서비스 접속·저장 증거와 #8·11·12·13 설계 근거](REVIEW.md)
+
 거래를 기록하고 월별 지출과 예산 잔액을 확인하는 한국어 가계부다. 웹에서는 React → FastAPI → Firestore 순서로 데이터를 처리한다. 브라우저에서 Claude 사용을 선택하면 백엔드가 월별 요약과 최근 대화 6건을 모델에 전달한다. 단일 채점용 장부이므로 가상의 거래로 시연한다.
 
 [설치·로컬 실행·배포](DEPLOY.md) · [18개 평가 항목과 증빙](ASSESSMENT.md) · [모바일 실행 화면](evidence/overview-mobile.png)
 
 ## 채점용 공개 서비스
+
+안드로이드 7.0 이상에서는 휴대폰으로 [SpendWise APK 다운로드](https://raw.githubusercontent.com/jamin3874-oss/3rd-Project/main/2%EB%B2%88%20%EA%B3%BC%EC%A0%9C/spendwise_agent/android/SpendWise.apk)를 열어 설치할 수 있다. 앱 목록에서 SpendWise를 누르면 기본 브라우저로 온라인 가계부가 열린다. 브라우저가 맞춤 탭을 지원하면 앱 안에서 열리며, 같은 브라우저의 30일 로그인을 이용한다. [안드로이드 빌드 및 서명 안내](android/README.md)
 
 [SpendWise 가계부](https://spendwise-f6d6d.onrender.com/) · [Swagger UI](https://spendwise-f6d6d.onrender.com/docs) · [OpenAPI JSON](https://spendwise-f6d6d.onrender.com/openapi.json) · [서버 상태](https://spendwise-f6d6d.onrender.com/health)
 

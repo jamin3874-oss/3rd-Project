@@ -1,0 +1,91 @@
+{
+  "checked_at_utc": "2026-11-22T06:35:20.945129+00:00",
+  "public_http": [
+    {
+      "method": "GET",
+      "url": "https://spendwise-f6d6d.onrender.com/",
+      "status": 200,
+      "page_title": "SpendWise · 로그인"
+    },
+    {
+      "method": "GET",
+      "url": "https://spendwise-f6d6d.onrender.com/health",
+      "status": 200,
+      "response": {
+        "status": "ok"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://spendwise-f6d6d.onrender.com/docs",
+      "status": 200,
+      "contains_swagger_ui": true
+    },
+    {
+      "method": "GET",
+      "url": "https://spendwise-f6d6d.onrender.com/openapi.json",
+      "status": 200,
+      "routes": [
+        "/health",
+        "/api/data/summary",
+        "/api/data",
+        "/api/data/{key}",
+        "/api/conversations",
+        "/api/chat"
+      ]
+    },
+    {
+      "method": "GET",
+      "url": "https://spendwise-f6d6d.onrender.com/api/conversations",
+      "status": 401,
+      "response": {
+        "detail": "로그인이 필요합니다."
+      }
+    }
+  ],
+  "firestore_readback": [
+    {
+      "method": "GET",
+      "url": "https://firestore.googleapis.com/v1/projects/spendwise-f6d6d/databases/(default)/documents/data/0eea85e2-70ac-4917-a118-de950b170001",
+      "status": 200,
+      "response": {
+        "name": "projects/spendwise-f6d6d/databases/(default)/documents/data/0eea85e2-70ac-4917-a118-de950b170001",
+        "fields": {
+          "merchant": {
+            "stringValue": "과제 예시 카페"
+          },
+          "amount": {
+            "integerValue": "5300"
+          },
+          "month": {
+            "stringValue": "2026-11"
+          }
+        },
+        "updateTime": "2026-11-21T10:58:20.468494Z"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://firestore.googleapis.com/v1/projects/spendwise-f6d6d/databases/(default)/documents/conversations/ea776e3c-5910-4b2a-91af-bc54a4c90001",
+      "status": 200,
+      "response": {
+        "name": "projects/spendwise-f6d6d/databases/(default)/documents/conversations/ea776e3c-5910-4b2a-91af-bc54a4c90001",
+        "fields": {
+          "reply": {
+            "stringValue": "2026-11 지출은 1건, 총 5,300원입니다."
+          },
+          "schema_version": {
+            "integerValue": "1"
+          },
+          "tool": {
+            "stringValue": "summarize"
+          },
+          "month": {
+            "stringValue": "2026-11"
+          }
+        },
+        "updateTime": "2026-11-21T10:46:33.858085Z"
+      }
+    }
+  ]
+}
