@@ -1,0 +1,42 @@
+{
+  "checked_at_utc": "2026-11-22T06:40:39.300405+00:00",
+  "fixture": "과제 예시 카페",
+  "before_amount": 5300,
+  "write": {
+    "method": "PATCH",
+    "url": "https://firestore.googleapis.com/v1/projects/spendwise-f6d6d/databases/(default)/documents/data/0eea85e2-70ac-4917-a118-de950b170001?updateMask.fieldPaths=amount&currentDocument.updateTime=2026-11-21T10%3A58%3A20.468494Z&mask.fieldPaths=amount",
+    "body": {
+      "fields": {
+        "amount": {
+          "integerValue": "5300"
+        }
+      }
+    },
+    "status": 200,
+    "response": {
+      "name": "projects/spendwise-f6d6d/databases/(default)/documents/data/0eea85e2-70ac-4917-a118-de950b170001",
+      "fields": {
+        "amount": {
+          "integerValue": "5300"
+        }
+      },
+      "createTime": "2026-11-21T10:25:52.281442Z",
+      "updateTime": "2026-11-21T10:58:20.468494Z"
+    }
+  },
+  "readback": {
+    "method": "GET",
+    "url": "https://firestore.googleapis.com/v1/projects/spendwise-f6d6d/databases/(default)/documents/data/0eea85e2-70ac-4917-a118-de950b170001?mask.fieldPaths=amount",
+    "status": 200,
+    "response": {
+      "name": "projects/spendwise-f6d6d/databases/(default)/documents/data/0eea85e2-70ac-4917-a118-de950b170001",
+      "fields": {
+        "amount": {
+          "integerValue": "5300"
+        }
+      },
+      "createTime": "2026-11-21T10:25:52.281442Z",
+      "updateTime": "2026-11-21T10:58:20.468494Z"
+    }
+  }
+}
